@@ -57,7 +57,7 @@
  [],
  False,
  False,
- 1758640848,
+ 1758649220,
  [('runw',
    '/Users/jim/Documents/Programs/thumbGen/.venv/lib/python3.13/site-packages/PyInstaller/bootloader/Darwin-64bit/runw',
    'EXECUTABLE')],
