@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import (
     QWidget, QLabel, QPushButton, QLineEdit, QVBoxLayout,
     QHBoxLayout, QColorDialog, QFileDialog, QRadioButton,
+    QPlainTextEdit
 )
 from PySide6.QtGui import QPainter, QPaintEvent, QColor, QPixmap
 from PySide6.QtCore import Qt
@@ -15,13 +16,11 @@ class ImageSelector(QWidget):
 
         self.__label_file = QLabel("元画像", self)
 
-        self.__input_file = QLineEdit(
+        self.__input_file = QPlainTextEdit(
             self, placeholderText="ファイルパス", readOnly=True
         )
         self.__input_file.setFixedWidth(200)
-        self.__input_file.editingFinished.connect(
-            lambda: self.__check_file(parent)
-        )
+        self.__input_file.setFixedHeight(50)
 
         self.__btn_file = QPushButton("ファイルを開く", self)
         self.__btn_file.setFixedWidth(100)
@@ -51,16 +50,16 @@ class ImageSelector(QWidget):
         )
         file = fileName[0]
         print(file)
-        self.__input_file.setText(file)
+        self.__input_file.setPlainText(file)
         self.__check_file(parent)
 
 
     def __check_file(self, parent):
         """選択されたファイルが存在するか確認する"""
-        file = self.__input_file.text()
+        file = self.__input_file.toPlainText()
         if not pathlib.Path(file).is_file():
             print("ファイルが存在しません")
-            self.__input_file.setText("")
+            self.__input_file.setPlainText("")
             parent.file_info.setText("ファイルが存在しません")
             parent.file_info.setStyleSheet(
                 WarningIndicatorStyle.WARNING.value
@@ -79,7 +78,7 @@ class ImageSelector(QWidget):
         Returns:
             str: ファイルのパス
         """
-        return str(pathlib.Path(self.__input_file.text()))
+        return str(pathlib.Path(self.__input_file.toPlainText()))
 
         
 
