@@ -24,6 +24,9 @@ class MainWindow(QMainWindow):
         # ロゴの色
         self.__logo_color_selector = cwidgets.LogoColorSelector(self)
 
+        # ロゴの形
+        self.__logo_shape_selector = cwidgets.LogoShapeSelector(self)
+
         # サムネイル表示
         self.__pic = cwidgets.ThumbnailPreview(self)
 
@@ -60,6 +63,7 @@ class MainWindow(QMainWindow):
         left.addWidget(self.__color_selector)
         left.addWidget(self.__offset_selector)
         left.addWidget(self.__logo_color_selector)
+        left.addWidget(self.__logo_shape_selector)
         left.addStretch()
         top.addLayout(left)
 
@@ -130,6 +134,15 @@ class MainWindow(QMainWindow):
             img.LogoColor: ロゴの色
         """
         return self.__logo_color_selector.get_logo_color()
+    
+
+    def get_logo_shape(self) -> img.LogoShape:
+        """選択されているロゴの形を取得する
+
+        Returns:
+            img.LogoShape: ロゴの形
+        """
+        return self.__logo_shape_selector.get_logo_shape()
 
     
     def update_preview(self):
@@ -139,6 +152,7 @@ class MainWindow(QMainWindow):
             offset = self.get_offset()
             color = self.get_rgba()
             logo_color = self.get_logo_color()
-            self.__pic.update_preview(image_path, offset, color, logo_color)
+            logo_shape = self.get_logo_shape()
+            self.__pic.update_preview(image_path, offset, color, logo_color, logo_shape)
         except Exception as e:
             print(f"プレビューの更新に失敗: {e}")

@@ -8,25 +8,33 @@ class LogoColor(Enum):
     WHITE = 1
 
 
+class LogoShape(Enum):
+    BANNER = 0
+    TRAPEZOID = 1
+    SOFT_TRAPEZOID = 2
+    SOFT_RECTANGLE = 3
+
 
 def generate_thumbnail(
         input_path: str, offset: int, 
         rgba: tuple[int, int, int, int],
-        logo_color: LogoColor = LogoColor.WHITE) -> None:
+        logo_color: LogoColor = LogoColor.WHITE,
+        logo_shape: LogoShape = LogoShape.BANNER) -> None:
     """サムネイルを生成する
 
     Args:
         input_path (str): 元画像のパス
         offset (int): 画像の縦方向のオフセット. 負なら下に，正なら上にずれる.
         rgba (tuple[int, int, int, int]): 長方形の色(R, G, B, A)
-        logo_color (LogoColor, optional): ロゴの色. デフォルトは白(LogoColor.WHITE).
+        logo_color (LogoColor, optional): ロゴの色. Defaults to LogoColor.WHITE.
+        logo_shape (LogoShape, optional): ロゴの形. Defaults to LogoShape.BANNER.
     """
     image = Image.open(input_path).copy()
     image = resize(image, offset)
 
     canvas = Image.new('RGB', (1920, 1080), (255, 255, 255))
     canvas.paste(image, (0, 0))
-    canvas = put_rectangle(canvas, rgba)
+    canvas = put_banner(canvas, rgba, logo_shape)
     canvas = put_logo(canvas, logo_color)
     
     save_path = str(pathlib.Path(input_path).parent / 'thumbnail.png')
@@ -67,13 +75,16 @@ def resize(image: Image.Image, offset: int = 0) -> Image.Image:
 
 
 
-def put_rectangle(
-        image: Image.Image, rgba: tuple[int, int, int, int],
+def put_banner(
+        image: Image.Image,
+        rgba: tuple[int, int, int, int],
+        shape: LogoShape = LogoShape.BANNER
         ) -> Image.Image:
     """画像の下に長方形を描画する
     Args:
         image (Image.Image): 長方形を描画するPIL Imageオブジェクト
         rgba (tuple[int, int, int, int]): 長方形の色(R, G, B, A)
+        shape (LogoShape, optional): 長方形の形. Defaults to LogoShape.BANNER.
     Returns:
         Image.Image: 長方形が描画されたPIL Imageオブジェクト
     """
@@ -85,7 +96,58 @@ def put_rectangle(
     temp = Image.new('RGBA', image.size, (255, 255, 255, 0))
     draw = ImageDraw.Draw(temp, 'RGBA')
     # 長方形を描画
-    draw.rectangle((0, image.height * 5 / 6, image.width, image.height), fill=rgba)
+    IMG_H = 1080
+    IMG_W = 1920
+    RADIUS = 45
+    match shape:
+        case LogoShape.BANNER:
+            draw.rectangle(
+                [(0, IMG_H - 180), (IMG_W, IMG_H)], 
+                fill=rgba
+            )
+        case LogoShape.TRAPEZOID:
+            draw.polygon(
+                [(0, IMG_H - 180),
+                 (0, IMG_H),
+                 (840, IMG_H),
+                 (720, IMG_H - 180)],
+                fill=rgba
+            )
+        case LogoShape.SOFT_TRAPEZOID:
+            draw.rounded_rectangle(
+                [(0, IMG_H - 180), (720, IMG_H)], 
+                radius=RADIUS, fill=rgba
+            )
+            draw.rectangle(
+                [(0, IMG_H - 180), (RADIUS, IMG_H)],
+                fill=rgba
+            )
+            draw.rectangle(
+                [(720 - RADIUS, IMG_H - RADIUS), (720, IMG_H)],
+                fill=rgba
+            )
+            draw.polygon(
+                [(720 - RADIUS + (3 / (13**(1/2))) * RADIUS, IMG_H),
+                 (840, IMG_H),
+                 (720 - RADIUS + (3 / (13**(1/2))) * RADIUS,
+                  IMG_H - 180 + RADIUS - (2 / (13**(1/2))) * RADIUS)],
+                fill=rgba
+            )
+        case LogoShape.SOFT_RECTANGLE:
+            draw.rounded_rectangle(
+                [(0, IMG_H - 180), (720, IMG_H)], 
+                radius=RADIUS, fill=rgba
+            )
+            draw.rectangle(
+                [(0, IMG_H - 180), (RADIUS, IMG_H)],
+                fill=rgba
+            )
+            draw.rectangle(
+                [(720 - RADIUS, IMG_H - RADIUS), (720, IMG_H)],
+                fill=rgba
+            )
+        case _:
+            draw.rectangle((0, image.height * 5 / 6, image.width, image.height), fill=rgba)
     # 元の画像と長方形を合成
     image = Image.alpha_composite(image, temp)
 
@@ -116,11 +178,14 @@ def put_logo(image: Image.Image, bw: LogoColor) -> Image.Image:
     # ロゴ画像を開く
     logo = Image.open(logo_path).convert('RGBA')
     # ロゴのサイズを決定（画像の高さの1/6に合わせる）
-    logo_height = image.height // 6 - 70
-    logo_width = int(logo.width * (logo_height / logo.height))
-    logo = logo.resize((logo_width, logo_height))
+    LOGO_H = 120
+    logo_w = int(logo.width * (LOGO_H / logo.height)) # approx. 570
+    logo = logo.resize((logo_w, LOGO_H))
+
+    IMG_H = 1080
+    IMG_W = 1920
     # ロゴを画像の左下に貼り付ける
-    image.paste(logo, (50, image.height - logo_height - 35), logo)
+    image.paste(logo, (75, IMG_H - LOGO_H - 30), logo)
     return image
 
 

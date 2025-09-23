@@ -445,6 +445,54 @@ class LogoColorSelector(QWidget):
             
 
 
+class LogoShapeSelector(QWidget):
+    """ ロゴの形選択用ウィジェット """
+    def __init__(self, parent: 'gui.MainWindow'):
+        """初期化関数
+
+        Args:
+            parent (gui.MainWindow): 親ウィジェット(MainWindow)
+        """
+        super().__init__(parent)
+
+        self.__label_logo_shape = QLabel("ロゴの形", self)
+
+        self.__radio_banner = QRadioButton("バナー", self)
+        self.__radio_trapezoid = QRadioButton("台形", self)
+        self.__radio_soft_trapezoid = QRadioButton("角丸台形", self)
+        self.__radio_soft_rectangle = QRadioButton("角丸長方形", self)
+        self.__radio_banner.setChecked(True)
+
+        layout = QHBoxLayout()
+        layout.addWidget(self.__label_logo_shape)
+        layout.addStretch()
+        right = QVBoxLayout()
+        right.addWidget(self.__radio_banner)
+        right.addWidget(self.__radio_trapezoid)
+        right.addWidget(self.__radio_soft_trapezoid)
+        right.addWidget(self.__radio_soft_rectangle)
+        layout.addLayout(right)
+
+        self.setLayout(layout)
+
+
+    def get_logo_shape(self) -> img.LogoShape:
+        """選択されたロゴの形を取得する
+
+        Returns:
+            img.LogoShape: ロゴの形 (img.LogoShape.BANNER, img.LogoShape.TRAPEZOID, img.LogoShape.SOFT_TRAPEZOID, or img.LogoShape.SOFT_RECTANGLE)
+        """
+        if self.__radio_banner.isChecked():
+            return img.LogoShape.BANNER
+        elif self.__radio_trapezoid.isChecked():
+            return img.LogoShape.TRAPEZOID
+        elif self.__radio_soft_trapezoid.isChecked():
+            return img.LogoShape.SOFT_TRAPEZOID
+        else:
+            return img.LogoShape.SOFT_RECTANGLE
+
+
+
 class RectangleWidget(QWidget):
     """色プレビュー用の矩形ウィジェット"""
     def __init__(self, parent: 'ColorSelector'):
@@ -516,7 +564,8 @@ class ThumbnailPreview(QLabel):
     def update_preview(
             self, image_path: str, offset: int,
             rgba: tuple[int, int, int, int],
-            logo_color: img.LogoColor = img.LogoColor.WHITE
+            logo_color: img.LogoColor = img.LogoColor.WHITE,
+            logo_shape: img.LogoShape = img.LogoShape.BANNER
             ):
         """プレビューを更新する
 
@@ -527,7 +576,7 @@ class ThumbnailPreview(QLabel):
             logo_color (img.LogoColor, optional): ロゴの色. Defaults to img.LogoColor.WHITE.
         """
         try:
-            img.generate_thumbnail(image_path, offset, rgba, logo_color)
+            img.generate_thumbnail(image_path, offset, rgba, logo_color, logo_shape)
             path = pathlib.Path(image_path).parent / 'thumbnail.png'
             pixmap = QPixmap(str(path)).scaled(
                 480, 270, Qt.AspectRatioMode.KeepAspectRatio
@@ -593,8 +642,9 @@ class GenerateButton(QPushButton):
             offset = parent.get_offset()
             rgba = parent.get_rgba()
             logo_color = parent.get_logo_color()
+            logo_shape = parent.get_logo_shape()
             
-            img.generate_thumbnail(image_path, offset, rgba, logo_color)
+            img.generate_thumbnail(image_path, offset, rgba, logo_color, logo_shape)
             parent.update_preview()
         except Exception as e:
             print(f"Error: {e}")
