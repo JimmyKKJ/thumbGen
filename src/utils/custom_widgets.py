@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import (
     QWidget, QLabel, QPushButton, QLineEdit, QVBoxLayout,
-    QHBoxLayout, QColorDialog, QFileDialog, QRadioButton, QTextEdit
+    QHBoxLayout, QColorDialog, QFileDialog, QRadioButton,
 )
 from PySide6.QtGui import QPainter, QPaintEvent, QColor, QPixmap
 from PySide6.QtCore import Qt
