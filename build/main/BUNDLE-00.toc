@@ -1,1 +1,0 @@
-([('main', '/Users/jim/Documents/Programs/thumbGen/dist/main', 'EXECUTABLE')],)
