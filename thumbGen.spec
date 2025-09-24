@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='main',
+    name='thumbGen',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -35,11 +35,11 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['thumbGen_icon_ios.png'],
+    icon=['TGIcon.png'],
 )
 app = BUNDLE(
     exe,
-    name='main.app',
-    icon='thumbGen_icon_ios.png',
+    name='thumbGen.app',
+    icon='TGIcon.png',
     bundle_identifier=None,
 )
