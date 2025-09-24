@@ -9,9 +9,15 @@ from enum import Enum
 from utils import misc, img, gui
 import pathlib
 
+
 class ImageSelector(QWidget):
     """ 画像ファイル選択用ウィジェット """
-    def __init__(self, parent: QWidget):
+    def __init__(self, parent: 'gui.MainWindow'):
+        """初期化関数
+
+        Args:
+            parent (QWidget): 親ウィジェット(MainWindow)
+        """
         super().__init__(parent)
 
         self.__label_file = QLabel("元画像", self)
